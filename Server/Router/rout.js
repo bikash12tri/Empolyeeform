@@ -6,9 +6,9 @@ const jwt = require("jsonwebtoken");
 router.post("/register", async (req, res) => {
   try {
     let reqBody = req.body;
-    let { Fname, Lname, email, phone, address,conphone } = reqBody;
+    let { Fname, Lname, email, phone, address, password } = reqBody;
     let user = await UserModel.create(reqBody);
-    res.status(200).send({ message: "sucessfully created", data: user });
+    res.status(200).send({ message: "Data created sucessfully", data: user });
   } catch (error) {
     res.status(500).send(error);
   }
@@ -17,30 +17,32 @@ router.post("/register", async (req, res) => {
 router.post("/login", async (req, res) => {
   try {
     let reqBody = req.body;
-    let { email, phone } = reqBody;
+    let { email, password } = reqBody;
 
-    if (!email || !phone)
-      return res.status(400).send({ msg: "Enter email and phome" });
-    let user = await UserModel.findOne({ email, phone });
-    
-    if (!user)
-      return res.status(401).send({
-        msg: "Invalid login credentials. Please check the details & try again",
-      });
+    if (!email || !password)
+      return res.status(400).send({ msg: "Enter email and password" });
+    let user = await UserModel.findOne({ email: email, password: password });
 
-      let userId = user._id
-      // create token
-      let token = jwt.sign(
-          {
-              userId: user._id.toString(),
-              iat: Math.floor(Date.now() / 1000),
-              exp: "1hr"
-          },
-          'Bikash123'
-      )
+    if (!user) {
+      return res.status(404).send({ message: "email or password is incorrect"});
+    }
 
-      res.status(200).send({ status: true, message: 'Successfully Login', userId: { userId, token } });
+    let userId = user._id;
+    // create token
+    let token = jwt.sign(
+      {
+        userId: user._id.toString(),
+        iat: Math.floor(Date.now() / 1000),
+        exp: Math.floor(Date.now() / 1000) + 60 * 60,
+      },
+      "Bikash123"
+    );
 
+    res.status(200).send({
+      status: true,
+      message: "Loggedin successfully",
+      userId: { userId, token },
+    });
   } catch (error) {
     res.status(500).send(error);
   }
