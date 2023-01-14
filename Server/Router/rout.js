@@ -34,9 +34,9 @@ router.post("/login", async (req, res) => {
           {
               userId: user._id.toString(),
               iat: Math.floor(Date.now() / 1000),
-              exp: Math.floor(Date.now() / 1000) + 24 * 60 * 60
+              exp: "1hr"
           },
-          'prakash123'
+          'Bikash123'
       )
 
       res.status(200).send({ status: true, message: 'Successfully Login', userId: { userId, token } });
